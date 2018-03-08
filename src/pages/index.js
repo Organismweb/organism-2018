@@ -4,8 +4,9 @@ import styled from 'styled-components'
 import * as PIXI from 'pixi.js'
 
 import {font} from '../components/_settings/_variables'
-import displacementImage from '../images/3DlQqNq.jpg'
+import displacementImage from '../images/clouds.jpg'
 import oval from '../images/oval.png'
+import ovalMask from '../images/oval-mask.png'
 
 class IndexPage extends Component {
   componentDidMount() {
@@ -13,14 +14,15 @@ class IndexPage extends Component {
     const height = document.documentElement.clientHeight
     const screenXCenter = width / 2
     const screenYCenter = height / 2
-    const app = new PIXI.Application(width, height)
+    const app = new PIXI.Application({width, height, backgroundColor: '0x0B0B0B'})
+
     app.stage.interactive = true
     const container = new PIXI.Container()
 
     this.mount.appendChild(app.view)
     app.stage.addChild(container)
 
-    // Set styling for title a
+    // Set styling for title
     const titleStyle = {
       fontFamily: 'Cormorant Garamond',
       fontSize: 132,
@@ -60,6 +62,16 @@ class IndexPage extends Component {
     displacementFilter.scale.y = 100
     displacementSprite.anchor.set(0.5)
 
+    const textDisplacementSprite = PIXI.Sprite.fromImage(displacementImage)
+    const textDisplacementFilter = new PIXI.filters.DisplacementFilter(textDisplacementSprite)
+    container.filters = [textDisplacementFilter]
+
+    const textFilterMask = PIXI.Sprite.fromImage(ovalMask)
+    textFilterMask.y = screenYCenter + 150
+    textFilterMask.x = screenXCenter - 350
+    textFilterMask.anchor.set(0.5)
+    container.addChild(textFilterMask)
+    textDisplacementSprite.mask = textFilterMask
     // Bubble sprite & container
     const bubbleSprite = new PIXI.Sprite.fromImage(oval)
 
