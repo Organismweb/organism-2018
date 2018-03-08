@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import * as PIXI from 'pixi.js'
 
 import {font} from '../components/_settings/_variables'
-import displacementImage from '../../public/static/3DlQqNq.jpg'
-import oval from '../../public/static/oval.png'
+import displacementImage from '../images/3DlQqNq.jpg'
+import oval from '../images/oval.png'
 
 class IndexPage extends Component {
   componentDidMount() {
