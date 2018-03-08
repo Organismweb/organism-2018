@@ -20,7 +20,7 @@ class IndexPage extends Component {
     this.mount.appendChild(app.view)
     app.stage.addChild(container)
 
-    // Set styling for title
+    // Set styling for title a
     const titleStyle = {
       fontFamily: 'Cormorant Garamond',
       fontSize: 132,
