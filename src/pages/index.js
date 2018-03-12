@@ -1,115 +1,106 @@
 import React, {Component} from 'react'
 import Link from 'gatsby-link'
 import styled from 'styled-components'
-import * as PIXI from 'pixi.js'
-
-import {font} from '../components/_settings/_variables'
-import displacementImage from '../images/clouds.jpg'
-import oval from '../images/oval.png'
-import ovalMask from '../images/oval-mask.png'
+import * as THREE from 'three'
+import titleFontFile from '../fonts/cormorant-garamond-bold.json'
+import subTitleFontFile from '../fonts/barlow-regular.json'
 
 class IndexPage extends Component {
   componentDidMount() {
+    const canvas = this.canvas
     const width = document.documentElement.clientWidth
     const height = document.documentElement.clientHeight
     const screenXCenter = width / 2
     const screenYCenter = height / 2
-    const app = new PIXI.Application({width, height, backgroundColor: '0x0B0B0B'})
 
-    app.stage.interactive = true
-    const container = new PIXI.Container()
+    // Scene
+    const scene = new THREE.Scene()
+    scene.background = new THREE.Color(0x0b0b0b)
 
-    this.mount.appendChild(app.view)
-    app.stage.addChild(container)
+    // Camera
+    const camera = new THREE.PerspectiveCamera(45, width / height, 1, 500)
 
-    // Set styling for title
-    const titleStyle = {
-      fontFamily: 'Cormorant Garamond',
-      fontSize: 132,
-      fill: '0xFF001F',
-      padding: 100,
-      fontWeight: '400',
-    }
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({canvas, antialias: true})
+    renderer.setPixelRatio( window.devicePixelRatio )
+    renderer.setSize(width, height)
 
-    // Create and position title
-    const titleContainer = new PIXI.Container()
-    const title = new PIXI.Text('Organism', titleStyle)
-    title.anchor.set(0.5)
-    title.x = screenXCenter
-    title.y = screenYCenter
-    titleContainer.addChild(title)
-    container.addChild(titleContainer)
+    // Ambient light
+    const ambientLight = new THREE.AmbientLight( 0x404040, 0.5 ); 
+    ambientLight.name = 'Ambient Light'
+    scene.add( ambientLight );
 
-    // Set styling for subtitle
-    const subTitleStyle = {
-      fontFamily: 'Barlow',
-      fontSize: 28,
-      fill: '0xFFFFFF',
-    }
-
-    // Create and position subtitle
-    const subTitle = new PIXI.Text('DIGITAL INNOVATION', subTitleStyle)
-    subTitle.anchor.set(0.5)
-    subTitle.x = screenXCenter
-    subTitle.y = screenYCenter + 110
-    container.addChild(subTitle)
-
-    const displacementSprite = PIXI.Sprite.fromImage(displacementImage)
-    const displacementFilter = new PIXI.filters.DisplacementFilter(displacementSprite)
-    app.stage.addChild(displacementSprite)
-
-    displacementFilter.scale.x = 100
-    displacementFilter.scale.y = 100
-    displacementSprite.anchor.set(0.5)
-
-    const textDisplacementSprite = PIXI.Sprite.fromImage(displacementImage)
-    const textDisplacementFilter = new PIXI.filters.DisplacementFilter(textDisplacementSprite)
-    container.filters = [textDisplacementFilter]
-
-    const textFilterMask = PIXI.Sprite.fromImage(ovalMask)
-    textFilterMask.y = screenYCenter + 150
-    textFilterMask.x = screenXCenter - 350
-    textFilterMask.anchor.set(0.5)
-    container.addChild(textFilterMask)
-    textDisplacementSprite.mask = textFilterMask
-    // Bubble sprite & container
-    const bubbleSprite = new PIXI.Sprite.fromImage(oval)
-
-    bubbleSprite.anchor.set(0.5)
-    bubbleSprite.y = screenYCenter + 150
-    bubbleSprite.x = screenXCenter - 350
-    bubbleSprite.filters = [displacementFilter]
-
-    // Add bubble to container
-    app.stage.addChild(bubbleSprite)
-
-    // Ticker
-    const ticker = new PIXI.ticker.Ticker()
-    let count = 0
-    ticker.add((delta) => {
-      bubbleSprite.scale.x = 1 + Math.sin(count) * 0.03
-      bubbleSprite.scale.y = 1 + Math.sin(count) * 0.03
-      displacementSprite.rotation += 0.003 * delta
-      count += 0.01
+    // Directional light
+    const pointerLight = new THREE.PointLight(0xffffff, 0.5)
+    pointerLight.name = 'Pointer Light'
+    scene.add( pointerLight )
+  
+    // Title font
+    let fontLoader = new THREE.FontLoader()
+    const titleFont = fontLoader.parse(titleFontFile)
+    
+    const titleText = 'Organism'
+    const titleMaterial = new THREE.MeshBasicMaterial( {
+      color: new THREE.Color(0xFF001F),
     })
+    const titleShapes = titleFont.generateShapes( titleText, 42);
+    const titleGeo = new THREE.ShapeGeometry( titleShapes )
 
-    ticker.start()
+    titleGeo.computeBoundingBox()
+    titleGeo.center()
+
+    const title = new THREE.Mesh( titleGeo, titleMaterial )
+    title.position.z = -400
+
+    scene.add( title )
+    
+    // Subtitle font
+    const subTitleFont = fontLoader.parse(subTitleFontFile)
+    const subTitleText = 'DIGITAL INNOVATION'
+    const subTitleMaterial = new THREE.MeshBasicMaterial( {
+      color: new THREE.Color(0xFFFFFF),
+    })
+    const subTitleShapes = subTitleFont.generateShapes( subTitleText, 10);
+    const subTitleGeo = new THREE.ShapeGeometry( subTitleShapes )
+    subTitleGeo.computeBoundingBox()
+    subTitleGeo.center()
+    const subTitle = new THREE.Mesh( subTitleGeo, subTitleMaterial )
+    subTitle.position.z = -400
+    subTitle.position.y = -44
+    scene.add( subTitle )
+
+    // sphere
+    const sphereGeo = new THREE.SphereGeometry( 10, 200, 200 );
+    const sphereMaterial = new THREE.MeshPhongMaterial( {
+      color: 0xffffff,
+   
+    } );
+    const sphere = new THREE.Mesh( sphereGeo, sphereMaterial );
+    sphere.position.z = -40
+    sphere.position.x = -11
+    sphere.position.y = -3
+    scene.add( sphere );
+
+
+    window.scene = scene
+    window.THREE = THREE
+
+    const animate = () => {
+      renderer.render(scene, camera)
+      requestAnimationFrame(animate)
+    }
+
+    animate()
   }
   render() {
     return (
-      <AnimationSection>
-        <div ref={(mount) => (this.mount = mount)} />
-      </AnimationSection>
+      <React.Fragment>
+        <canvas ref={ canvas => this.canvas = canvas } />
+      </React.Fragment>
     )
   }
 }
 
 export default IndexPage
 
-const AnimationSection = styled.section`
-  position: relative;
-  background-color: black;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-`
+
