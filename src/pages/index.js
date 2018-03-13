@@ -74,12 +74,16 @@ class IndexPage extends Component {
     subTitle.position.y = -44
     scene.add(subTitle)
 
+    var texture = new THREE.TextureLoader().load( './static/clouds.jpg' );
+    var hehe = new THREE.MeshBasicMaterial( { map: texture } );
+    console.log(hehe)
     // create a wireframe material
     const material = new THREE.ShaderMaterial({
-      tExplosion: {
-        type: 't',
-      },
       uniforms: {
+        tExplosion: {
+          type: 't',
+          value: texture
+        },
         time: {
           // float initialized to 0
           type: 'f',
@@ -104,7 +108,7 @@ class IndexPage extends Component {
     const start = Date.now()
     const animate = () => {
       renderer.render(scene, camera)
-      material.uniforms['time'].value = 0.00025 * (Date.now() - start)
+      material.uniforms['time'].value = 0.00015 * (Date.now() - start)
       requestAnimationFrame(animate)
     }
 
