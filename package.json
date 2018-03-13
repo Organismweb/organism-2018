@@ -10,6 +10,7 @@
     "gatsby-plugin-react-next": "^1.0.10",
     "gatsby-plugin-styled-components": "^2.0.9",
     "glslify-loader": "^1.0.2",
+    "pixi": "^0.3.1",
     "raw-loader": "^0.5.1",
     "react-helmet": "^5.2.0",
     "styled-components": "^3.2.0",
