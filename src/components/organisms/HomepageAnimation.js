@@ -134,6 +134,7 @@ class HomepageAnimation extends Component {
       let bubbleMaskSprite;
       let bubbleOne
       let bubbleTwo
+      let bubbleThree
 
       const loader = new PIXI.loaders.Loader()
       // Using the loader to get images with dimensions.
@@ -165,6 +166,13 @@ class HomepageAnimation extends Component {
         bubbleTwo = createBubble(resources)
         bubbleTwo.x = width - 200
         bubbleTwo.y = 100
+
+        bubbleThree = createBubble(resources)
+        bubbleThree.x = screenXCenter + 300
+        bubbleThree.y = screenYCenter + 500
+        bubbleThree.width = bubbleThree.width / 1.6
+        bubbleThree.height = bubbleThree.height / 1.6
+
       })
   
       // Ticker
