@@ -3,11 +3,18 @@ import Link from 'gatsby-link'
 import styled from 'styled-components'
 import titleFontFile from '../fonts/cormorant-garamond-bold.json'
 import subTitleFontFile from '../fonts/barlow-regular.json'
-import * as PIXI from 'pixi.js'
 import cloudTexture from '../images/clouds.jpg'
+import bubbleMaskImage from '../images/oval-mask.png'
+import bubbleImage from '../images/oval.png'
 
 class IndexPage extends Component {
+ 
+  
+  
   init() {
+    if (typeof window !== 'undefined') {
+      const PIXI = require('pixi.js')
+    }
     const canvas = this.canvas
     const width = document.documentElement.clientWidth
     const height = document.documentElement.clientHeight
@@ -17,7 +24,7 @@ class IndexPage extends Component {
     const app = new PIXI.Application(width, height, {
       resolution: 2,
       autoResize: true,
-      backgroundColor: 0x000000,
+      backgroundColor: 0x0B0B0B,
     })
     canvas.appendChild(app.view)
 
@@ -26,12 +33,12 @@ class IndexPage extends Component {
       const container = new PIXI.Container()
       container.width = width
       container.height = height
-      container.backgroundColor = 0x000000
+      container.backgroundColor = 0x0B0B0B
       app.stage.addChild(container)
 
       // Background rectangle
       const square = new PIXI.Graphics()
-      square.beginFill(0x000000, 1)
+      square.beginFill(0x0B0B0B, 1)
       square.drawRect(0, 0, width, height)
       container.addChild(square)
 
@@ -43,10 +50,17 @@ class IndexPage extends Component {
         fill: '#FF001F',
         padding: 10,
       })
-      const title = new PIXI.Text('Organism', titleStyle)
+      let title;
+      if(containerName === 2) {
+        title = new PIXI.Text('anism', titleStyle)
+        title.x = screenXCenter
+      } else {
+        title = new PIXI.Text('Org', titleStyle)
+        title.x = screenXCenter - 150
+      }
       title.anchor.set(0.5)
       title.y = screenYCenter - 50
-      title.x = screenXCenter
+      
       container.addChild(title)
 
       // Create Subtitle
@@ -57,13 +71,28 @@ class IndexPage extends Component {
         fill: '#ffffff',
         padding: 10,
       })
-      const subTitle = new PIXI.Text('DIGITAL INNOVATION', subTitleStyle)
+      let subTitle;
+      if(containerName === 2) {
+        subTitle = new PIXI.Text('INNOVATION', subTitleStyle)
+        subTitle.x = screenXCenter - 50
+      } else {
+        subTitle = new PIXI.Text('DIGITAL', subTitleStyle)
+        subTitle.x = screenXCenter - 90
+      }
+      
       subTitle.anchor.set(0.5)
       subTitle.y = screenYCenter + 70
-      subTitle.x = screenXCenter
+      
       container.addChild(subTitle)
       return container
     }
+    
+
+    const containerTwo = createTextContainer(2)
+    containerTwo.y = 20
+    containerTwo.x = 120
+    
+    
     const containerOne = createTextContainer()
 
     const displacementSprite = new PIXI.Sprite.fromImage(cloudTexture)
@@ -76,14 +105,44 @@ class IndexPage extends Component {
     displacementFilter.scale.y = 100
     containerOne.addChild(displacementSprite)
 
-    const containerTwo = createTextContainer()
-    // Background rectangle
-    const circle = new PIXI.Graphics()
-    circle.beginFill(0xffffff, 1)
-    circle.drawCircle(screenXCenter - 210, screenYCenter, 200, 200)
-    circle.endFill()
-    containerTwo.addChild(circle)
-    containerTwo.mask = circle
+
+    const bubbleContainer = new PIXI.Container();
+    app.stage.addChild(bubbleContainer)
+
+    // Pixi sprite mask
+    let bubbleMaskSprite;
+    let bubble
+    const loader = new PIXI.loaders.Loader()
+    loader.add('bubbleMask', bubbleMaskImage)
+          .add('bubble', bubbleImage)
+    loader.load( (loader, resources) => {
+      bubbleMaskSprite = new PIXI.Sprite(resources.bubbleMask.texture)
+      const bubbleMaskWidth = resources.bubbleMask.texture.orig.width / 1.6
+      const bubbleMaskHeight = resources.bubbleMask.texture.orig.height / 1.6
+      bubbleMaskSprite.width = bubbleMaskWidth
+      bubbleMaskSprite.height = bubbleMaskHeight
+      bubbleMaskSprite.anchor.set(0.5)
+      bubbleMaskSprite.x = screenXCenter - 255
+      bubbleMaskSprite.y = screenYCenter    
+
+      containerOne.addChild(bubbleMaskSprite)
+      containerOne.mask = bubbleMaskSprite
+
+      // Bubble
+      bubble = new PIXI.Sprite.fromImage(bubbleImage)
+      bubble.anchor.set(0.5)
+      const bubbleWidth = resources.bubble.texture.orig.width / 1.3
+      const bubbleHeight = resources.bubble.texture.orig.height / 1.3
+      bubble.width = bubbleWidth
+      bubble.height = bubbleHeight
+      bubble.x = screenXCenter - 290
+      bubble.y = screenYCenter
+      bubble.alpha = 0.8
+      bubbleContainer.addChild(bubble)
+      bubbleContainer.filters = [displacementFilter]
+     
+    })
+
     // Ticker
     app.ticker.add((delta) => {
       displacementSprite.rotation += 0.01 * delta
