@@ -172,7 +172,6 @@ class HomepageAnimation extends Component {
         bubbleThree.y = screenYCenter + 500
         bubbleThree.width = bubbleThree.width / 1.6
         bubbleThree.height = bubbleThree.height / 1.6
-
       })
   
       // Ticker
